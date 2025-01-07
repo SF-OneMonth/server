@@ -5,6 +5,11 @@ spring:
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
 
+  data:
+    mongodb:
+      uri: ${MONGO_DB_URI}
+      port: 27017
+
   sql:
     init:
       mode: never
