@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DATABASE_ENDPOINT_URL}:3306/${DATABASE_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+
+  data:
+    mongodb:
+      uri: ${MONGO_DB_URI}
+      port: 27017
+
+  sql:
+    init:
+      mode: never
+
+  config:
+    import: optional:application-secret.properties
+    activate:
+      on-profile: local
+
+  mybatis:
+    config-location: classpath:mybatis-config-mysql.xml
+    mapper-locations: classpath:mappers/mysql/main/*/*.xml
