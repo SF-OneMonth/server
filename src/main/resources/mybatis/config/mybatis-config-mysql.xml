@@ -15,12 +15,10 @@
 
     <typeAliases>
         <!-- Model 등록 -->
-        <package name="org.hae.server.domain.user.model"/>
     </typeAliases>
 
     <mappers>
         <!-- Mapper 등록-->
-        <mapper resource="mappers/mysql/main/user/UserMapper.xml" />
     </mappers>
 
 </configuration>
