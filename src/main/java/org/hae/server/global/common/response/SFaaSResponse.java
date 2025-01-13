@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@JsonPropertyOrder({"status", "code", "message", "data"})
+@JsonPropertyOrder({ "status", "code", "message", "data" })
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class SFaaSResponse<T> {
@@ -23,7 +23,8 @@ public class SFaaSResponse<T> {
     }
 
     public static <T> SFaaSResponse<T> success(SuccessType successType, T data) {
-        return new SFaaSResponse<>(successType.getHttpStatusCode(), successType.getCode(), successType.getMessage(), data);
+        return new SFaaSResponse<>(successType.getHttpStatusCode(), successType.getCode(), successType.getMessage(),
+                data);
     }
 
     public static SFaaSResponse<?> error(ErrorType errorType) {

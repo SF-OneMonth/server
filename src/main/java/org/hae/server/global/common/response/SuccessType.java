@@ -6,17 +6,18 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-@AllArgsConstructor(access =  AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum SuccessType {
 
     /**
      * 200 OK (2000 ~ 2099)
      */
-    OK(HttpStatus.OK, 2000, "성공");
+    OK(HttpStatus.OK, 2000, "성공"),
 
     /**
      * 201 CREATED (2100 ~ 2199)
      */
+    CREATED(HttpStatus.CREATED, 2100, "생성 성공");
 
     /**
      * 204 NO CONTENT (2400 ~ 2499)
@@ -31,5 +32,3 @@ public enum SuccessType {
     }
 
 }
-
-

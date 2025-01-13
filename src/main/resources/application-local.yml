@@ -22,3 +22,23 @@ spring:
   mybatis:
     config-location: classpath:mybatis/config/mybatis-config-mysql.xml
     mapper-locations: classpath:mybatis/mappers/mysql/main/*/*.xml
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: sensor-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      allow:
+        auto:
+          create:
+            topics: false
+      group:
+        instance:
+          id: sensor-instance-1
+    listener:
+      ack-mode: MANUAL_IMMEDIATE
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer

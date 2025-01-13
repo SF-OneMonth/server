@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ErrorType {
-
     /**
      * 400 BAD REQUEST (4000 ~ 4099)
      */
@@ -17,12 +16,14 @@ public enum ErrorType {
     INVALID_TYPE(HttpStatus.BAD_REQUEST, 4002, "잘못된 타입이 입력되었습니다."),
     INVALID_MISSING_HEADER(HttpStatus.BAD_REQUEST, 4003, "요청에 필요한 헤더값이 존재하지 않습니다."),
     INVALID_HTTP_REQUEST(HttpStatus.BAD_REQUEST, 4004, "허용되지 않는 문자열이 입력되었습니다."),
+    DUPLICATE_EQUIPMENT_CODE(HttpStatus.BAD_REQUEST, 4005, "이미 존재하는 설비 코드입니다"),
+    INVALID_THRESHOLD(HttpStatus.BAD_REQUEST, 4006, "잘못된 임계값입니다"),
+
     /**
      * 401 UNAUTHROZIED (4100 ~ 4199)
      */
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 4100, "인증되지 않았습니다."),
     ACCESS_DENIED(HttpStatus.UNAUTHORIZED, 4109, "알 수 없는 이유로 요청이 거절되었습니다."),
-
 
     /**
      * 403 FORBIDDEN (4300 ~ 4399)
@@ -36,6 +37,9 @@ public enum ErrorType {
      */
     NOT_FOUND(HttpStatus.NOT_FOUND, 4400, "존재하지 않는 리소스입니다."),
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, 4401, "존재하지 않는 유저입니다."),
+    ALARM_NOT_FOUND(HttpStatus.NOT_FOUND, 4402, "알람 설정을 찾을 수 없습니다"),
+    EQUIPMENT_NOT_FOUND(HttpStatus.NOT_FOUND, 4403, "설비를 찾을 수 없습니다"),
+    SENSOR_DATA_NOT_FOUND(HttpStatus.NOT_FOUND, 4404, "센서 데이터를 찾을 수 없습니다"),
 
     /**
      * 405 Method Not Allowed (4500 ~ 4599)

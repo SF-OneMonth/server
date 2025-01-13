@@ -29,7 +29,8 @@ public class SFaaSControllerAdvice {
      * 400 BAD_REQUEST
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<SFaaSResponse<?>> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
+    public ResponseEntity<SFaaSResponse<?>> handleMethodArgumentNotValidException(
+            final MethodArgumentNotValidException e) {
 
         Errors errors = e.getBindingResult();
         Map<String, String> validateDetails = new HashMap<>();
@@ -39,29 +40,34 @@ public class SFaaSControllerAdvice {
             validateDetails.put(validKeyName, error.getDefaultMessage());
         }
         log.error(e.getMessage(), e);
-        return new ResponseEntity<>(SFaaSResponse.error(ErrorType.REQUEST_VALIDATION, validateDetails), e.getStatusCode());
+        return new ResponseEntity<>(SFaaSResponse.error(ErrorType.REQUEST_VALIDATION, validateDetails),
+                e.getStatusCode());
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<SFaaSResponse<?>> handlerMethodArgumentTypeMismatchException(final MethodArgumentTypeMismatchException e) {
+    public ResponseEntity<SFaaSResponse<?>> handlerMethodArgumentTypeMismatchException(
+            final MethodArgumentTypeMismatchException e) {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(SFaaSResponse.error(ErrorType.INVALID_TYPE), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
-    public ResponseEntity<SFaaSResponse<?>> handlerMissingRequestHeaderException(final MissingRequestHeaderException e) {
+    public ResponseEntity<SFaaSResponse<?>> handlerMissingRequestHeaderException(
+            final MissingRequestHeaderException e) {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(SFaaSResponse.error(ErrorType.INVALID_MISSING_HEADER), e.getStatusCode());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<SFaaSResponse<?>> handlerHttpMessageNotReadableException(final HttpMessageNotReadableException e) {
+    public ResponseEntity<SFaaSResponse<?>> handlerHttpMessageNotReadableException(
+            final HttpMessageNotReadableException e) {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(SFaaSResponse.error(ErrorType.INVALID_HTTP_REQUEST), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<SFaaSResponse<?>> handlerHttpRequestMethodNotSupportedException(final HttpRequestMethodNotSupportedException e) {
+    public ResponseEntity<SFaaSResponse<?>> handlerHttpRequestMethodNotSupportedException(
+            final HttpRequestMethodNotSupportedException e) {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(SFaaSResponse.error(ErrorType.METHOD_NOT_ALLOWED), e.getStatusCode());
     }
@@ -70,13 +76,15 @@ public class SFaaSControllerAdvice {
      * 500 INTERNEL_SERVER
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<SFaaSResponse<?>> handleException(final Exception e, final HttpServletRequest request) throws IOException {
+    public ResponseEntity<SFaaSResponse<?>> handleException(final Exception e, final HttpServletRequest request)
+            throws IOException {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(SFaaSResponse.error(ErrorType.INTERNAL_SERVER), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<SFaaSResponse<?>> handlerIllegalArgumentException(final IllegalArgumentException e, final HttpServletRequest request) {
+    public ResponseEntity<SFaaSResponse<?>> handlerIllegalArgumentException(final IllegalArgumentException e,
+            final HttpServletRequest request) {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(SFaaSResponse.error(ErrorType.INTERNAL_SERVER), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -88,7 +96,8 @@ public class SFaaSControllerAdvice {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<SFaaSResponse<?>> handlerRuntimeException(final RuntimeException e, final HttpServletRequest request) {
+    public ResponseEntity<SFaaSResponse<?>> handlerRuntimeException(final RuntimeException e,
+            final HttpServletRequest request) {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(SFaaSResponse.error(ErrorType.INTERNAL_SERVER), HttpStatus.INTERNAL_SERVER_ERROR);
     }

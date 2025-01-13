@@ -14,11 +14,12 @@
     </settings>
 
     <typeAliases>
-        <!-- Model 등록 -->
+        <package name="org.hae.server.domain.alarm.model"/>
     </typeAliases>
 
     <mappers>
-        <!-- Mapper 등록-->
+        <mapper resource="mybatis/mappers/mysql/main/alarm/AlarmSettingMapper.xml"/>
+        <mapper resource="mybatis/mappers/mysql/main/alarm/AlarmHistoryMapper.xml"/>
     </mappers>
 
 </configuration>

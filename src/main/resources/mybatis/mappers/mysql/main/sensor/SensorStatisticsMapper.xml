@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hae.server.domain.sensor.mapper.SensorStatisticsMapper">
+    
+    <select id="findHourlyStatistics" resultType="org.hae.server.domain.sensor.dto.response.SensorStatisticsResponse">
+        SELECT 
+            equipment_code as equipmentCode,
+            sensor_type as sensorType,
+            DATE_FORMAT(timestamp, '%Y-%m-%d %H:00:00') as timestamp,
+            AVG(value) as avgValue,
+            MAX(value) as maxValue,
+            MIN(value) as minValue
+        FROM sensor_data
+        WHERE equipment_code = #{equipmentCode}
+        AND sensor_type = #{sensorType}
+        AND timestamp BETWEEN #{start} AND #{end}
+        GROUP BY 
+            equipment_code,
+            sensor_type,
+            DATE_FORMAT(timestamp, '%Y-%m-%d %H:00:00')
+        ORDER BY timestamp DESC
+    </select>
+
+    <!-- 다른 통계 쿼리들도 비슷한 형식으로 작성 필요 -->
+</mapper> 
