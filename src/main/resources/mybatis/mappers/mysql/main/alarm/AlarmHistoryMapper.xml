@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hae.server.domain.alarm.mapper.AlarmHistoryMapper">
+
+    <insert id="insert" parameterType="org.hae.server.domain.alarm.model.AlarmHistory" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO alarm_histories (
+            equipment_code,
+            sensor_type,
+            sensor_value,
+            threshold_value,
+            alarm_type,
+            occurred_at,
+            acknowledged,
+            acknowledged_at
+        ) VALUES (
+            #{equipmentCode},
+            #{sensorType},
+            #{sensorValue},
+            #{thresholdValue},
+            #{alarmType},
+            #{occurredAt},
+            #{acknowledged},
+            #{acknowledgedAt}
+        )
+    </insert>
+
+    <select id="findById" resultType="org.hae.server.domain.alarm.model.AlarmHistory">
+        SELECT 
+            id,
+            equipment_code as equipmentCode,
+            sensor_type as sensorType,
+            sensor_value as sensorValue,
+            threshold_value as thresholdValue,
+            alarm_type as alarmType,
+            occurred_at as occurredAt,
+            acknowledged,
+            acknowledged_at as acknowledgedAt
+        FROM alarm_histories
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateAcknowledged">
+        UPDATE alarm_histories 
+        SET 
+            acknowledged = true,
+            acknowledged_at = #{acknowledgedAt}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findByEquipmentCodeAndPeriod" resultType="org.hae.server.domain.alarm.model.AlarmHistory">
+        SELECT 
+            id,
+            equipment_code as equipmentCode,
+            sensor_type as sensorType,
+            sensor_value as sensorValue,
+            threshold_value as thresholdValue,
+            alarm_type as alarmType,
+            occurred_at as occurredAt,
+            acknowledged,
+            acknowledged_at as acknowledgedAt
+        FROM alarm_histories
+        WHERE equipment_code = #{equipmentCode}
+        AND occurred_at BETWEEN #{startTime} AND #{endTime}
+        ORDER BY occurred_at DESC
+    </select>
+
+    <select id="getAlarmStatistics" resultType="org.hae.server.domain.alarm.dto.response.AlarmStatisticsDto">
+        SELECT 
+            equipment_code as equipmentCode,
+            sensor_type as sensorType,
+            alarm_type as alarmType,
+            COUNT(*) as count,
+            COUNT(CASE WHEN acknowledged = true THEN 1 END) as acknowledgedCount
+        FROM alarm_histories
+        WHERE equipment_code = #{equipmentCode}
+        AND occurred_at BETWEEN #{startTime} AND #{endTime}
+        GROUP BY equipment_code, sensor_type, alarm_type
+    </select>
+
+    <select id="findByConditions" resultType="org.hae.server.domain.alarm.model.AlarmHistory">
+        SELECT 
+            id,
+            equipment_code as equipmentCode,
+            sensor_type as sensorType,
+            sensor_value as sensorValue,
+            threshold_value as thresholdValue,
+            alarm_type as alarmType,
+            occurred_at as occurredAt,
+            acknowledged,
+            acknowledged_at as acknowledgedAt
+        FROM alarm_histories
+        WHERE 1=1
+        <if test="equipmentCode != null">
+            AND equipment_code = #{equipmentCode}
+        </if>
+        <if test="sensorType != null">
+            AND sensor_type = #{sensorType}
+        </if>
+        <if test="alarmType != null">
+            AND alarm_type = #{alarmType}
+        </if>
+        <if test="acknowledged != null">
+            AND acknowledged = #{acknowledged}
+        </if>
+        <if test="startTime != null">
+            AND occurred_at >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND occurred_at &lt;= #{endTime}
+        </if>
+        ORDER BY occurred_at DESC
+    </select>
+</mapper> 

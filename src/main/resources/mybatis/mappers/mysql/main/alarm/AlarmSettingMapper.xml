@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hae.server.domain.alarm.mapper.AlarmSettingMapper">
+    
+    <insert id="insert" parameterType="org.hae.server.domain.alarm.model.AlarmSetting" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO alarm_settings (
+            equipmentCode,
+            sensorType,
+            minThreshold,
+            maxThreshold,
+            description,
+            enabled
+        ) VALUES (
+            #{equipmentCode},
+            #{sensorType},
+            #{minThreshold},
+            #{maxThreshold},
+            #{description},
+            #{enabled}
+        )
+    </insert>
+
+    <select id="findById" resultType="org.hae.server.domain.alarm.model.AlarmSetting">
+        SELECT 
+            id,
+            equipmentCode,
+            sensorType,
+            minThreshold,
+            maxThreshold,
+            description,
+            enabled
+        FROM alarm_settings
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByEquipmentCodeAndSensorType" resultType="org.hae.server.domain.alarm.model.AlarmSetting">
+        SELECT 
+            id,
+            equipmentCode,
+            sensorType,
+            minThreshold,
+            maxThreshold,
+            description,
+            enabled
+        FROM alarm_settings
+        WHERE equipmentCode = #{equipmentCode}
+        AND sensorType = #{sensorType}
+    </select>
+
+    <select id="findByEquipmentCode" resultType="org.hae.server.domain.alarm.model.AlarmSetting">
+        SELECT 
+            id,
+            equipment_code as equipmentCode,
+            sensor_type as sensorType,
+            min_threshold as minThreshold,
+            max_threshold as maxThreshold,
+            description,
+            enabled
+        FROM alarm_settings
+        WHERE equipment_code = #{equipmentCode}
+    </select>
+
+    <update id="update" parameterType="org.hae.server.domain.alarm.model.AlarmSetting">
+        UPDATE alarm_settings 
+        SET 
+            minThreshold = #{minThreshold},
+            maxThreshold = #{maxThreshold},
+            description = #{description},
+            enabled = #{enabled}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM alarm_settings WHERE id = #{id}
+    </delete>
+</mapper> 
