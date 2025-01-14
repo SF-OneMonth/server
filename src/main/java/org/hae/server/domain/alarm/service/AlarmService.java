@@ -2,14 +2,14 @@ package org.hae.server.domain.alarm.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hae.server.domain.alarm.dto.response.AlarmStatisticsDto;
 import org.hae.server.domain.alarm.mapper.AlarmHistoryMapper;
 import org.hae.server.domain.alarm.model.AlarmHistory;
 import org.hae.server.domain.alarm.model.AlarmSetting;
-import org.hae.server.domain.alarm.dto.response.AlarmStatisticsDto;
 import org.hae.server.domain.sensor.model.SensorData;
+import org.hae.server.domain.sensor.service.SensorWebSocketService;
 import org.hae.server.global.common.exception.SFaaSException;
 import org.hae.server.global.common.response.ErrorType;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +20,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AlarmService {
-
     private final AlarmHistoryMapper alarmHistoryMapper;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final SensorWebSocketService webSocketService;
 
     @Transactional
     public void checkAndCreateAlarm(SensorData sensorData, AlarmSetting alarmSetting) {
@@ -30,6 +29,15 @@ public class AlarmService {
             return;
         }
 
+        AlarmHistory alarmHistory = createAlarmIfNeeded(sensorData, alarmSetting);
+        if (alarmHistory != null) {
+            alarmHistoryMapper.insert(alarmHistory);
+            webSocketService.sendSensorAlarm(sensorData.getEquipmentCode(), alarmHistory);
+            log.info("알람 생성 및 전송 완료: {}", alarmHistory);
+        }
+    }
+
+    private AlarmHistory createAlarmIfNeeded(SensorData sensorData, AlarmSetting alarmSetting) {
         AlarmHistory.AlarmType alarmType = null;
         Double thresholdValue = null;
 
@@ -41,25 +49,24 @@ public class AlarmService {
             thresholdValue = alarmSetting.getMinThreshold();
         }
 
-        if (alarmType != null) {
-            AlarmHistory alarmHistory = AlarmHistory.builder()
-                    .equipmentCode(sensorData.getEquipmentCode())
-                    .sensorType(sensorData.getSensorType())
-                    .sensorValue(sensorData.getValue())
-                    .thresholdValue(thresholdValue)
-                    .alarmType(alarmType)
-                    .occurredAt(LocalDateTime.now())
-                    .acknowledged(false)
-                    .build();
-
-            alarmHistoryMapper.insert(alarmHistory);
-
-            // WebSocket으로 실시간 알람 전송
-            String destination = "/topic/alarms/" + sensorData.getEquipmentCode();
-            messagingTemplate.convertAndSend(destination, alarmHistory);
-
-            log.info("Alarm created: {}", alarmHistory);
+        if (alarmType == null) {
+            return null;
         }
+
+        return AlarmHistory.builder()
+                .equipmentCode(sensorData.getEquipmentCode())
+                .sensorType(sensorData.getSensorType())
+                .sensorValue(sensorData.getValue())
+                .thresholdValue(thresholdValue)
+                .alarmType(alarmType)
+                .occurredAt(LocalDateTime.now())
+                .acknowledged(false)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AlarmHistory> getAlarmHistory(String equipmentCode, LocalDateTime start, LocalDateTime end) {
+        return alarmHistoryMapper.findByEquipmentCodeAndPeriod(equipmentCode, start, end);
     }
 
     @Transactional
@@ -73,26 +80,11 @@ public class AlarmService {
 
         alarmHistory.acknowledge();
         alarmHistoryMapper.updateAcknowledged(id, alarmHistory.getAcknowledgedAt());
-
-        // WebSocket으로 알람 승인 상태 전송
-        String destination = "/topic/alarms/ack/" + alarmHistory.getEquipmentCode();
-        messagingTemplate.convertAndSend(destination, alarmHistory);
+        webSocketService.sendSensorAlarm(alarmHistory.getEquipmentCode(), alarmHistory);
+        log.info("알람 확인 처리 완료: {}", id);
     }
 
-    public List<AlarmHistory> getAlarmHistory(
-            String equipmentCode,
-            LocalDateTime startTime,
-            LocalDateTime endTime) {
-        return alarmHistoryMapper.findByEquipmentCodeAndPeriod(equipmentCode, startTime, endTime);
-    }
-
-    public List<AlarmStatisticsDto> getAlarmStatistics(
-            String equipmentCode,
-            LocalDateTime startTime,
-            LocalDateTime endTime) {
-        return alarmHistoryMapper.getAlarmStatistics(equipmentCode, startTime, endTime);
-    }
-
+    @Transactional(readOnly = true)
     public List<AlarmHistory> searchAlarms(
             String equipmentCode,
             String sensorType,
@@ -107,5 +99,10 @@ public class AlarmService {
                 acknowledged,
                 startTime,
                 endTime);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AlarmStatisticsDto> getAlarmStatistics(String equipmentCode, LocalDateTime start, LocalDateTime end) {
+        return alarmHistoryMapper.getAlarmStatistics(equipmentCode, start, end);
     }
 }
