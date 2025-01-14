@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hae.server.domain.alarm.dto.response.AlarmStatisticsDto;
 import org.hae.server.domain.alarm.mapper.AlarmHistoryMapper;
+import org.hae.server.domain.alarm.mapper.AlarmSettingMapper;
 import org.hae.server.domain.alarm.model.AlarmHistory;
 import org.hae.server.domain.alarm.model.AlarmSetting;
 import org.hae.server.domain.sensor.model.SensorData;
@@ -15,21 +16,32 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AlarmService {
+    private final AlarmSettingMapper alarmSettingMapper;
     private final AlarmHistoryMapper alarmHistoryMapper;
     private final SensorWebSocketService webSocketService;
 
     @Transactional
-    public void checkAndCreateAlarm(SensorData sensorData, AlarmSetting alarmSetting) {
-        if (!alarmSetting.isEnabled()) {
+    public void processAlarm(SensorData sensorData) {
+        // 알람 설정 조회
+        Optional<AlarmSetting> alarmSettingOptional = alarmSettingMapper.findByEquipmentCodeAndSensorType(
+                sensorData.getEquipmentCode(),
+                sensorData.getSensorType());
+
+        if (alarmSettingOptional.isEmpty()) {
+            log.debug("알람 설정이 없음: equipmentCode={}, sensorType={}",
+                    sensorData.getEquipmentCode(),
+                    sensorData.getSensorType());
             return;
         }
 
-        AlarmHistory alarmHistory = createAlarmIfNeeded(sensorData, alarmSetting);
+        // 알람 조건 체크 및 생성
+        AlarmHistory alarmHistory = createAlarmIfNeeded(sensorData, alarmSettingOptional.get());
         if (alarmHistory != null) {
             alarmHistoryMapper.insert(alarmHistory);
             webSocketService.sendSensorAlarm(sensorData.getEquipmentCode(), alarmHistory);
@@ -38,6 +50,10 @@ public class AlarmService {
     }
 
     private AlarmHistory createAlarmIfNeeded(SensorData sensorData, AlarmSetting alarmSetting) {
+        if (!alarmSetting.isEnabled()) {
+            return null;
+        }
+
         AlarmHistory.AlarmType alarmType = null;
         Double thresholdValue = null;
 
@@ -59,7 +75,7 @@ public class AlarmService {
                 .sensorValue(sensorData.getValue())
                 .thresholdValue(thresholdValue)
                 .alarmType(alarmType)
-                .occurredAt(LocalDateTime.now())
+                .occurredAt(sensorData.getTimestamp())
                 .acknowledged(false)
                 .build();
     }
