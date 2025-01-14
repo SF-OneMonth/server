@@ -6,18 +6,23 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+/**
+ * WebSocket 설정 클래스
+ * 실시간 센서 데이터 브로드캐스트를 위한 WebSocket 설정을 정의합니다.
+ */
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic"); // 구독 요청 prefix
-        config.setApplicationDestinationPrefixes("/app"); // 메시지 발행 prefix
+        // 구독 전용 토픽 설정
+        config.enableSimpleBroker("/topic");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // WebSocket 연결 엔드포인트 설정
         registry.addEndpoint("/ws-sensor")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
