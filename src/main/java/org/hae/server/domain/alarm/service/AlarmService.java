@@ -26,7 +26,6 @@ public class AlarmService {
     private final AlarmHistoryMapper alarmHistoryMapper;
     private final SensorWebSocketService webSocketService;
 
-    @Transactional
     public void processAlarm(SensorData sensorData) {
         // 알람 설정 조회
         Optional<AlarmSetting> alarmSettingOptional = alarmSettingMapper.findByEquipmentCodeAndSensorType(
@@ -35,15 +34,16 @@ public class AlarmService {
 
         if (alarmSettingOptional.isEmpty()) {
             log.debug("알람 설정이 없음: equipmentCode={}, sensorType={}",
-                    sensorData.getEquipmentCode(),
-                    sensorData.getSensorType());
+                    sensorData.getEquipmentCode(), sensorData.getSensorType());
             return;
         }
 
         // 알람 조건 체크 및 생성
         AlarmHistory alarmHistory = createAlarmIfNeeded(sensorData, alarmSettingOptional.get());
         if (alarmHistory != null) {
+            // 알람 저장
             alarmHistoryMapper.insert(alarmHistory);
+            // WebSocket으로 알람 전송
             webSocketService.sendSensorAlarm(sensorData.getEquipmentCode(), alarmHistory);
             log.info("알람 생성 및 전송 완료: {}", alarmHistory);
         }
