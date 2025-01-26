@@ -7,7 +7,7 @@ spring:
       password: ${DATABASE_PASSWORD}
     slave:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://${SLAVE_DATABASE_ENDPOINT_URL}:3306/${SLAVE_DATABASE_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      url: jdbc:mysql://${SLAVE_DATABASE_ENDPOINT_URL}:3307/${SLAVE_DATABASE_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       username: ${SLAVE_DATABASE_USER}
       password: ${SLAVE_DATABASE_PASSWORD}
 

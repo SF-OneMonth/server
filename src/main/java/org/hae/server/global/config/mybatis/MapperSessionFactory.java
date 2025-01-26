@@ -4,6 +4,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +22,10 @@ public class MapperSessionFactory {
     private String configFile;
 
     @Bean
-    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
+    public SqlSessionFactory sqlSessionFactory(
+        @Qualifier(value = "routingDataSource") DataSource dataSource
+    ) throws Exception {
+
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         sessionFactory.setVfs(SpringBootVFS.class);
